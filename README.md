@@ -25,6 +25,27 @@ library will not do that, to allow the user the freedom to use whatever
 messaging scheme the wish.
 
 
-### What Isn't Handled By This Library
+### What Isn't Handled By This Library?
 **Security** is not handled by this library. It is expected that a user will
-utilize the [openssl.h](https://www.openssl.org/)
+utilize the [openssl.h](https://www.openssl.org/) library. cPOS exists to
+assist c programmers in message creation. cPOS also does not contain any
+GUI components, so nothing from, `org.jpos.iso.gui` exists (at this time), in
+this library.
+
+
+### What Still Has To Be Implemented?
+1. [space](http://jpos.org/doc/javadoc/org/jpos/space/package-summary.html)
+2. [channels](http://jpos.org/doc/javadoc/org/jpos/iso/channel/package-summary.html)
+3. [headers](http://jpos.org/doc/javadoc/org/jpos/iso/header/package-summary.html)
+4. [validator](http://jpos.org/doc/javadoc/org/jpos/iso/validator/package-summary.html)
+
+Basically all of the functionality of [`org.jpos.iso`](http://jpos.org/doc/javadoc/org/jpos/iso/package-summary.html)
+needs to be put into this library.
+
+
+### What Should Go In This Library?
+1. Translate Messages to Web/Human-Friendly Formats
+	1. JSON
+	2. xml
+	3. csv
+2. Functions to handle a [transaction](http://jpos.org/doc/javadoc/org/jpos/transaction/package-summary.html).
