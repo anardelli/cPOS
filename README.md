@@ -4,7 +4,8 @@
 
 This is an implementation of ISO 8583, in regular ANSI C89.
 
-This library provides an (insert link here) API, and guarantees that:
+This library provides an [ISO 8583](https://en.wikipedia.org/wiki/ISO_8583)
+message creation system, compatible with C/C++ and guarantees the following:
 
 * all functions expressed in jPOS that are implemented in this library have the same function declaration as jPOS does (String -> char *)
 * all output messages adhere to the ISO 8583 standard
@@ -39,7 +40,8 @@ this library.
 3. [headers](http://jpos.org/doc/javadoc/org/jpos/iso/header/package-summary.html)
 4. [validator](http://jpos.org/doc/javadoc/org/jpos/iso/validator/package-summary.html)
 
-Basically all of the functionality of [`org.jpos.iso`](http://jpos.org/doc/javadoc/org/jpos/iso/package-summary.html)
+Basically all of the functionality of
+[`org.jpos.iso`](http://jpos.org/doc/javadoc/org/jpos/iso/package-summary.html)
 needs to be put into this library.
 
 
