@@ -27,7 +27,7 @@ messaging scheme the wish.
 
 ### What Isn't Handled By This Library?
 **Security** is not handled by this library. It is expected that a user will
-utilize the [openssl.h](https://www.openssl.org/) library. cPOS exists to
+utilize the [`openssl.h`](https://www.openssl.org/) library. cPOS exists to
 assist c programmers in message creation. cPOS also does not contain any
 GUI components, so nothing from, `org.jpos.iso.gui` exists (at this time), in
 this library.
