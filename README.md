@@ -27,4 +27,4 @@ messaging scheme the wish.
 
 ### What Isn't Handled By This Library
 **Security** is not handled by this library. It is expected that a user will
-utilize the (openssl.h)[https://www.openssl.org/]
+utilize the [openssl.h](https://www.openssl.org/)
