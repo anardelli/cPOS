@@ -23,7 +23,9 @@ cPOS.h library.
 ### Message Sending
 Another thing that jPOS does is create messages in an XML format. This
 library will not do that, to allow the user the freedom to use whatever
-messaging scheme the wish.
+messaging scheme the wish. That being said, **messages** need to be created
+with headers, to be sent over the wire. These are all implemented within
+jPOS's channel system.
 
 
 ### What Isn't Handled By This Library?
