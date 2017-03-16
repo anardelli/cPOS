@@ -1,11 +1,12 @@
 CC = cc
 TARGET = testlib
-OBJECTS = main.o ebcdic.c messages.c
+OBJECTS = example.o ebcdic.o messages.o
+# OBJECTS = ebcdic.o messages.o main.o
 
 all: $(TARGET)
 
 %.o: %.c
-	$(CC) -g -c -o $@ $<
+	$(CC) -Wall -g -c -o $@ $<
 
 clean: clean-obj clean-bin
 

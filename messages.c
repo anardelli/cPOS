@@ -31,6 +31,11 @@ iso_field **isomessage_alloc(int len)
 	return data; // User checks return type
 }
 
+void isomessage_sort(void *base, int message_len)
+{
+	qsort(base, message_len, sizeof(iso_field), isomessage_comp);
+}
+
 /*
  * func : isomessage_add
  * args : iso_field **array, int len, iso_field *input
@@ -100,12 +105,18 @@ int isomessage_remove(iso_field **array, int len, int field_num)
 	return val;
 }
 
-int compmi(const void *val1, const void *val2)
+/*
+ * func : isomessage_comp
+ * args : ONLY USE FROM THE CONTEXT OF QSORT
+ * out  : ONLY USE FROM THE CONTEXT OF QSORT
+ * use  : ONLY USE FROM THE CONTEXT OF QSORT
+ */
+int isomessage_comp(const void *val1, const void *val2)
 {
-	iso_field *inner1 = (iso_field *) val1;
-	iso_field *inner2 = (iso_field *) val2;
+	iso_field *inner1 = *(iso_field **) val1;
+	iso_field *inner2 = *(iso_field **) val2;
 
-	return inner1->field_num > inner2->field_num;
+	return (inner2->field_num < inner1->field_num);
 }
 
 /*
@@ -338,9 +349,9 @@ int isofield_set_name(iso_field *input, char *input_name)
 void isofield_print(iso_field *input)
 {
 	if (input) {
-		printf("num : %d, datatype : %d name : '%s', data : '%s'\n",
-				input->data_type,
+		printf("field_num : %d, datatype : %d name : '%s', data : '%s'\n",
 				input->field_num,
+				input->data_type,
 				isofield_get_name(input),
 				isofield_get_data(input)
 				);

@@ -22,12 +22,13 @@ typedef struct iso_field { // the definition of an iso 8583 field
 } iso_field;
 
 /* Utility functions that assist in the use of individual iso_fields.  */
-iso_field **isomessage_alloc(int len);
 int isomessage_add(iso_field **array, int len, iso_field *input);
+int isomessage_comp(const void *val1, const void *val2);
 int isomessage_remove(iso_field **array, int len, int field_num);
-int compmi(const void *val1, const void *val2);
+iso_field **isomessage_alloc(int len);
 void isomessage_deep_free(iso_field **input, int len);
-
+void isomessage_print_all(iso_field **array, int len);
+void isomessage_sort(void *base, int message_len);
 
 
 
@@ -48,4 +49,5 @@ long isofield_get_memory_size(iso_field *input);
 int isofield_set_name(iso_field *input, char *input_name); // setters
 int isofield_set_data(iso_field *input, char *input_data, int input_data_len);
 
+int isofield_verify(iso_field *input);
 void isofield_print(iso_field *input);
