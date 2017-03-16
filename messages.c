@@ -8,18 +8,156 @@
 #define FIELD_FLAG 0xefbeadde // oh, Intel!
 #define INIT_LEN   32         // initial fields, no realloc
 
+/* -------------------------------------------------------------------------- */
+/*                  BEGIN THE DEFINITION OF ISOMESSAGES                       */
+/* -------------------------------------------------------------------------- */
+
 /*
  * func : isomessage_alloc
  * args : int len
  * out  : struct **isofield
- * use  : use this to create an array of iso fields.
+ * use  : this function
  */
-iso_field *isomessage_alloc(int len)
+
+iso_field **isomessage_alloc(int len)
 {
-	iso_field *data = malloc(sizeof(iso_field *) * len);
-	return data;
+	// iso_field **data = malloc(sizeof(iso_field *) * (len == 0) ? INIT_LEN : 0);
+	iso_field **data = malloc(sizeof(iso_field *) * len);
+
+	if (data) {
+		memset(data, 0, sizeof(iso_field *) * len);
+	}
+
+	return data; // User checks return type
 }
 
+/*
+ * func : isomessage_add
+ * args : iso_field **array, int len, iso_field *input
+ * out  : int -> -1 on failure, 0 on success
+ * use  : "insert 'input' into 'array'
+ *
+ *         Makes use of the C standard library's bsearch and qsort functions.
+ *         By default, the add function simply adds to an index that is NULL,
+ *         and when the user's done ADDING to the message, they NEED TO
+ *         call isomessage_sort, and it takes care of ordering the array.
+ *
+ *         WARNING : len is not the last index of the array, it is the LENGTH
+ *         of the array.
+ *
+ *         Remember to increase len after you add to the list.
+ */
+
+int isomessage_add(iso_field **array, int len, iso_field *input)
+{
+	int i;
+	int val = 0;
+
+	for (i = 0; i < len; i++) {
+		if (!array[i]) {
+			array[i] = input;
+			break;
+		}
+	}
+
+	if (i == len) { // no space in the array
+		val = -1;
+	} else {
+		val = 0;
+	}
+
+	return val;
+}
+
+/*
+ * func : isomessage_remove
+ * args : iso_field **array, int len, int field_num
+ * out  : int -> -1 on failure, 0 on success
+ * use  : Uses bsearch on the array, and if the element is found in the
+ *        array, it frees the memory associated, sets the pointer to NULL,
+ *        and returns 0.
+ *
+ *        If the value is not in the array, -1 is returned and no changes
+ *        to the list are made.
+ */
+
+int isomessage_remove(iso_field **array, int len, int field_num)
+{
+	int val = 0;
+	int i;
+
+	for (i = 0; i < len && array[i]; i++) {
+		if (array[i]->field_num == field_num) {
+			free(array[i]);
+			array[i] = NULL;
+		}
+	}
+
+	if (i == len) {
+		val = -1;
+	}
+
+	return val;
+}
+
+int compmi(const void *val1, const void *val2)
+{
+	iso_field *inner1 = (iso_field *) val1;
+	iso_field *inner2 = (iso_field *) val2;
+
+	return inner1->field_num > inner2->field_num;
+}
+
+/*
+ * func : isomessage_print_all
+ * args : iso_field **, int len
+ * out  : void
+ * use  : prints fields in order, assuming the array is sorted
+ */
+
+void isomessage_print_all(iso_field **array, int len)
+{
+	int i;
+	for (i = 0; i < len; i++) {
+		if (array[i]) {
+			isofield_print(array[i]);
+		}
+	}
+}
+
+
+/*
+ * func : isomessage_deep_free
+ * args : iso_field **
+ * out  : void
+ * use  : this function iterates over the entire array of isofields that
+ *        the user has, and simply frees each valid one
+ *
+ *        This free is set up like this because an isomessage itself is
+ *        simply a collection of iso_fields. There's no need to store
+ *        information about an isomessage itself when simply encoding
+ *        data.
+ *
+ *        All pointers should come from the return type of an alloc function.
+ */
+
+void isomessage_deep_free(iso_field **input, int len)
+{
+	int i;
+
+	if (!input)
+		return;
+
+	for (i = 0; i < len; i++)
+		if (input[i])
+			free(input[i]);
+
+	free(input);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                  BEGIN THE DEFINITION OF ISOFIELDS                         */
+/* -------------------------------------------------------------------------- */
 
 /*
  * func : iso_field_alloc
@@ -35,28 +173,38 @@ iso_field *isomessage_alloc(int len)
  *        Other functions within this library can be used to access the
  *        data by performing pointer arithmetic for the user.
  *
- * notes: we assume that the *name string is NULL terminated because of the
+ * notes: We assume that the *name string is NULL terminated because of the
  *        use of functions that rely on it.
+ *
+ *        This function will round the name and the data (the variable data
+ *        sizes) to a multiple of 4, for pretty memory dumps.
  */
 
-void *isofield_alloc(
-		char *name, char *data, int field_num, int data_len, unsigned int type)
+void *isofield_alloc(char *name, char *data, int field_num,
+					 int name_len, int data_len, unsigned int type)
 {
-	void *ptr = malloc(sizeof(iso_field) + strlen(name) + 1 + data_len);
+	/* we get the length of the variable data size */
+	int var_data_size = ++name_len + data_len;
+
+	if (var_data_size % 4 != 0)
+		var_data_size += 4 - var_data_size % 4;
+
+	int size = sizeof(iso_field) + var_data_size;
+
+	void *ptr = malloc(size);
 
 	if (ptr) {
-		int name_len = strlen(name);
-
 		// set the memory all to zero
-		memset(ptr, 0, sizeof(iso_field) + name_len + 1 + data_len);
+		memset(ptr, 0, size);
 
 		// set the fields within the header
 		iso_field *tmp = ptr;
 
 		tmp->flag       = FIELD_FLAG;
+		tmp->size       = size;
 		tmp->field_num  = field_num;
-		tmp->name_len   = strlen(name);
 		tmp->data_type  = type;
+		tmp->name_len   = name_len;
 		tmp->data_len   = data_len;
 
 		// copy the data to the regions of memory AFTER the iso_field struct
@@ -66,7 +214,7 @@ void *isofield_alloc(
 		strcpy(byte_ptr, name);
 
 		// get the new pointer
-		byte_ptr = byte_ptr + tmp->name_len + 1;
+		byte_ptr = byte_ptr + tmp->name_len;
 
 		memcpy(byte_ptr, data, data_len);
 	}
@@ -109,7 +257,7 @@ int isofield_verify(iso_field *input)
  * out  : char * where appropriate
  * use  : Use these functions to get data out of individual fields. While
  *        a message itself is simply an array of iso_field ptrs, there's
- *        pointer arithmetic involved within getting out the data from
+ *        pointer arithmetic involved with getting out the data from
  *        iso_fields. This allows the data thrown into the 'struct' to be
  *        of variable length.
  */
@@ -121,12 +269,14 @@ char *isofield_get_name(iso_field *input)
 
 char *isofield_get_data(iso_field *input)
 {
-	return ((char *)input) + sizeof(iso_field) + input->name_len + 1;
+	return ((char *)input) + sizeof(iso_field) + input->name_len;
 }
 
 long isofield_get_memory_size(iso_field *input)
 {
-	return sizeof(iso_field) + input->name_len + 1 + input->data_len;
+	if (input)
+		return input->size;
+	return 0;
 }
 
 /*
@@ -177,3 +327,41 @@ int isofield_set_name(iso_field *input, char *input_name)
 
 	return 0;
 }
+
+/*
+ * func : isomessage_print
+ * args : iso_field **, int len
+ * out  : void
+ * use  : prints fields in order
+ */
+
+void isofield_print(iso_field *input)
+{
+	if (input) {
+		printf("num : %d, datatype : %d name : '%s', data : '%s'\n",
+				input->data_type,
+				input->field_num,
+				isofield_get_name(input),
+				isofield_get_data(input)
+				);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* -------------------------------------------------------------------------- */
+/*                    BEGIN OTHER UTILITY FUNCTIONALITY                       */
+/* -------------------------------------------------------------------------- */
