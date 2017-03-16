@@ -1,14 +1,17 @@
 Thu Feb 02, 2017 13:33
 
 Main Project Goals:
-	1) Pack ISO fields with basic data
+	* 1) Pack ISO fields with basic data
 	2) Create entire ISO messages
 	3) Get a memory dump of all ISO data
 		Create a nice interface (give filenames, and perms),
 		using fwrite and standard C.
-	4) 
 
 Extra Helpful Includes
 	1) Little Endian Flag & Big Endian Flag - memory dumps
 	2) Create memory dumps easily
+
+Long Term Thoughts:
+	Write the project's own allocator for use instead of the system malloc.
+		Speed?
 
