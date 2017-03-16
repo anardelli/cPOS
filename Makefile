@@ -16,4 +16,4 @@ clean-bin:
 	rm -rf $(TARGET)
 	
 $(TARGET): $(OBJECTS)
-	$(CC) -g -o $(TARGET) $(OBJECTS)
+	$(CC) -Wall -g -o $(TARGET) $(OBJECTS)

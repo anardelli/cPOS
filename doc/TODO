@@ -1,7 +1,14 @@
 Thu Feb 02, 2017 13:33
 
-	1) Research Standard
-	2) See if jPOS deals with sending the messages elsewhere.
-	3) Buy the ISO 8583 standards book
+Main Project Goals:
+	1) Pack ISO fields with basic data
+	2) Create entire ISO messages
+	3) Get a memory dump of all ISO data
+		Create a nice interface (give filenames, and perms),
+		using fwrite and standard C.
+	4) 
 
+Extra Helpful Includes
+	1) Little Endian Flag & Big Endian Flag - memory dumps
+	2) Create memory dumps easily
 
